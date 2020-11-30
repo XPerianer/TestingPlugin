@@ -13,7 +13,7 @@
 			  "translate(" + margin.left + "," + margin.top + ")");
 	
 	// Parse the Data
-	d3.json("http://localhost:8080/mock.json").then( (data) => {
+	var displayData = () => {d3.json("http://localhost:8080/mock.json").then( (data) => {
 	
 	// X axis
 	var x = d3.scaleLinear()
@@ -42,14 +42,17 @@
 		}
 	}
 	
-	  console.log(data);
 	svg.selectAll("circle")
 	  .data(data)
-	  .enter()
-	  .append("circle")
+	  .join("circle")
 		.attr("cx", d => x(d.relevance))
 		.attr("cy", d => y(d.importance))
 		.attr("fill", d => color(d.failing))
 		.attr("r", 10);
 	
 	})
+}
+
+	setInterval(() => {
+		displayData();
+    }, 1000);
