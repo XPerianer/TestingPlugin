@@ -1,5 +1,6 @@
 {
 	"name": "testingplugin",
+	"publisher": "XPerianer",
 	"displayName": "TestingPlugin",
 	"description": "Immediate Test Feedback",
 	"version": "0.0.1",
@@ -10,13 +11,14 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCommand:testingplugin.start"
+		"onCommand:testingPlugin.start",
+		"onWebviewPanel:testingPlugin"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
 		"commands": [
 			{
-				"command": "testingplugin.start",
+				"command": "testingPlugin.start",
 				"title": "Activate Testingplugin"
 			}
 		]
