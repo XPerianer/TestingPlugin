@@ -45,12 +45,13 @@ return `
 
 <html>
 <head>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 	<script src="https://d3js.org/d3.v5.min.js"></script>
 </head>
 
 <body>
 	<svg id="chart" width="300" height="400"></svg>
-	<script src="${scriptUri}" crossorigin="anonymous"></script>
+	<script src="${scriptUri}"></script>
 </body>
 
 </html>`
