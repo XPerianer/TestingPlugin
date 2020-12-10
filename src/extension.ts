@@ -5,10 +5,11 @@ import * as vscode from 'vscode';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
+	let panel: vscode.WebviewPanel | undefined;
 	context.subscriptions.push(
 		vscode.commands.registerCommand('testingPlugin.start', () => {
 			// Create and show a new webview
-			const panel = vscode.window.createWebviewPanel(
+			panel = vscode.window.createWebviewPanel(
 				'testingPlugin', // Identifies the type of the webview. Used internally
 				'Testing Plugin', // Title of the panel displayed to the user
 				vscode.ViewColumn.One, // Editor column to show the new webview panel in.
@@ -27,6 +28,16 @@ export function activate(context: vscode.ExtensionContext) {
 				}
 			});
 		}
+
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('testingPlugin.save', () => {
+			if (panel) {
+				panel.webview.postMessage({ command: 'save' });
+			}
+			vscode.commands.executeCommand('workbench.action.files.save')
+		})
+	)
 };
 
 // this method is called when your extension is deactivated

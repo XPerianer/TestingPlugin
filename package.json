@@ -12,7 +12,8 @@
 	],
 	"activationEvents": [
 		"onCommand:testingPlugin.start",
-		"onWebviewPanel:testingPlugin"
+		"onWebviewPanel:testingPlugin",
+		"onCommand:testingPlugin.save"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -20,6 +21,10 @@
 			{
 				"command": "testingPlugin.start",
 				"title": "Activate Testingplugin"
+			},
+			{
+				"command": "testingPlugin.save",
+				"title": "Testingplugin: save (used to detect that tests need to be run)"
 			}
 		]
 	},

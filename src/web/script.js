@@ -12,10 +12,21 @@ var svg = d3.select("#chart")
 	.attr("transform",
 		"translate(" + margin.left + "," + margin.top + ")");
 
+var dataset = {};
+
+		// Add fill color
+		var color = (outcome) => {
+			if (outcome == "passed") {
+				return "green";
+			} else {
+				return "red";
+			}
+		}
+
 // Parse the Data
 var displayData = () => {
 	d3.json("http://localhost:9001/data").then((data) => {
-
+		dataset = data;
 		// X axis
 		var x = d3.scaleLinear()
 			.range([0, width])
@@ -34,14 +45,7 @@ var displayData = () => {
 		svg.append("g")
 			.call(d3.axisLeft(y));
 
-		// Add fill color
-		var color = (outcome) => {
-			if (outcome == "passed") {
-				return "green";
-			} else {
-				return "red";
-			}
-		}
+
 
 		svg.selectAll("circle")
 			.data(data)
@@ -64,5 +68,35 @@ debugger;
 socket.emit('join', 'web');
 socket.on('connect', () => {console.log("Connected");});
 socket.on('event', function(data){console.log(data);});
-socket.on('testreport', (data) => console.log(data));
+socket.on('testreport', (data) => {
+	console.log(data);
+	if(data.when == 'teardown') {
+		return;
+	}
+	for (let test of dataset) {
+		if(test.name == data.id) {
+			if (data.outcome) {
+				test.outcome = "passed";
+			} else {
+				test.outcome = "failed";
+			}
+		}
+	}
+	svg.selectAll("circle")
+		.transition(1000)
+		.attr("fill", d => color(d.outcome));
+});
+
 socket.on('disconnect', function(){});
+
+
+window.addEventListener('message', event => {
+
+	const message = event.data;
+
+	switch (message.command) {
+		case 'save': // Register save event to be handled in server 
+			socket.emit('save', 'save');
+			break;
+	}
+});
