@@ -18,6 +18,8 @@ var dataset = {};
 		var color = (outcome) => {
 			if (outcome == "passed") {
 				return "green";
+			} else if (outcome == "predicted_failure") {
+				return "blue";
 			} else {
 				return "red";
 			}
@@ -62,9 +64,6 @@ var displayData = () => {
 displayData();
 
 var socket = io.connect('ws://localhost:9001');
-console.log(io.protocol);
-debugger;
-
 socket.emit('join', 'web');
 socket.on('connect', () => {console.log("Connected");});
 socket.on('event', function(data){console.log(data);});
@@ -75,6 +74,7 @@ socket.on('testreport', (data) => {
 	}
 	for (let test of dataset) {
 		if(test.name == data.id) {
+			console.log(data.outcome);
 			if (data.outcome) {
 				test.outcome = "passed";
 			} else {
@@ -85,6 +85,16 @@ socket.on('testreport', (data) => {
 	svg.selectAll("circle")
 		.transition(1000)
 		.attr("fill", d => color(d.outcome));
+});
+
+socket.on('predicted_failures', (data) => {
+	for (let predictedFailure of data) {
+		for (let entry of dataset) {
+			if (entry.name == predictedFailure) {
+				entry.outcome = "predicted_failure";
+			}
+		}
+	}
 });
 
 socket.on('disconnect', function(){});
