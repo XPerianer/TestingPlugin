@@ -25,19 +25,31 @@ export function activate(context: vscode.ExtensionContext) {
 			vscode.window.registerWebviewPanelSerializer('testingPlugin', {
 				async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
 					webviewPanel.webview.html = getWebviewContext(webviewPanel.webview, context.extensionUri);
+					webviewPanel.webview.postMessage({ command: 'refresh' });
 				}
 			});
 		}
 
-
 	context.subscriptions.push(
 		vscode.commands.registerCommand('testingPlugin.save', () => {
+			vscode.commands.executeCommand('workbench.action.files.save')
 			if (panel) {
 				panel.webview.postMessage({ command: 'save' });
 			}
-			vscode.commands.executeCommand('workbench.action.files.save')
 		})
 	)
+
+	vscode.window.onDidChangeVisibleTextEditors(
+		textEditors => {
+			console.log(textEditors);
+			if (panel) {
+				panel.webview.postMessage({ command: 'onDidChangeVisibleTextEditors',
+				textEditors: textEditors.map(
+					textEditor => ({filename: textEditor.document.fileName})
+				)});
+			}
+		}
+	);
 };
 
 // this method is called when your extension is deactivated
