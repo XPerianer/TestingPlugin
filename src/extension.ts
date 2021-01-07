@@ -73,7 +73,7 @@ return `
 </head>
 
 <body>
-	<svg id="chart" width="300" height="400"></svg>
+	<svg id="chart" width="300" height="800"></svg>
 	<script src="${scriptUri}"></script>
 </body>
 

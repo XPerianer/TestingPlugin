@@ -1,5 +1,6 @@
 class VisualizationData {
-	
+
+	defaultRelevance = 1;
 
 	getObjectForTestName(name) {
 		return this.getData()[this.testNameToDataIndex.get(name)];
@@ -9,6 +10,18 @@ class VisualizationData {
 		for (let predictedFailure of data) {
 			this.getObjectForTestName(predictedFailure).outcome = "predicted_failure";
 		}
+	}
+
+	handleRelevanceUpdate(data) {
+		for (const test of this.getData()) {
+			test.relevance = this.defaultRelevance;
+		}
+		for (const [name, relevance] of Object.entries(JSON.parse(data))) {
+			let test = this.getObjectForTestName(name);
+			if (test) {
+				test.relevance = relevance;
+			}
+		  }
 	}
 
 	handleTestReport(testreport) {
@@ -32,6 +45,7 @@ class VisualizationData {
 		this.testNameToDataIndex = new Map();
 		this.data.forEach((test, index) => {
 			this.testNameToDataIndex.set(test.name, index);
+			test.relevance = 1;
 		});
 	}
 	getData() {
@@ -39,10 +53,12 @@ class VisualizationData {
 	}
 };
 
+
+
 // set the dimensions and margins of the graph
 var margin = { top: 30, right: 30, bottom: 70, left: 60 },
 	width = 300 - margin.left - margin.right,
-	height = 400 - margin.top - margin.bottom;
+	height = 800 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
 var svg = d3.select("#chart")
@@ -52,6 +68,12 @@ var svg = d3.select("#chart")
 	.append("g")
 	.attr("transform",
 		"translate(" + margin.left + "," + margin.top + ")");
+
+var visualization = {};
+
+visualization.yAxis = svg.append("g");
+visualization.xAxis = svg.append("g");
+visualization.circles = svg.selectAll("circles");
 
 var dataset = new VisualizationData();
 // Add fill color
@@ -65,15 +87,18 @@ var color = (outcome) => {
 	}
 }
 
+d3.json("http://localhost:9001/data").then((data) => {
+	dataset.setData(data);
+	displayData();
+});
+
 // Parse the Data
-var displayData = () => {
-	d3.json("http://localhost:9001/data").then((data) => {
-		dataset.setData(data);
+var displayData = (transition=false) => {
 		// X axis
 		var x = d3.scaleLinear()
 			.range([0, width])
 			.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures));
-		svg.append("g")
+		visualization.xAxis
 			.attr("transform", "translate(0," + height + ")")
 			.call(d3.axisBottom(x))
 			.selectAll("text")
@@ -82,24 +107,35 @@ var displayData = () => {
 
 		// Add Y axis
 		var y = d3.scaleLinear()
-			.domain(d3.extent(dataset.getData(), (d, i) => i))
+			.domain([0, 100])
 			.range([height, 0]);
-		svg.append("g")
+		visualization.yAxis
 			.call(d3.axisLeft(y));
 
-		svg.selectAll("circle")
+		if (transition) {
+			svg.selectAll("circle")
+			.data(dataset.getData())
+			.join("circle")
+			.transition()
+			.duration(1000)
+			.attr("cx", d => x(d.mutant_failures))
+			.attr("cy", d => y(d.relevance))
+			.attr("fill", d => color(d.outcome))
+			.attr("r", 10);
+		} else {
+			svg.selectAll("circle")
 			.data(dataset.getData())
 			.join("circle")
 			.attr("cx", d => x(d.mutant_failures))
-			.attr("cy", (d, i) => y(i))
+			.attr("cy", d => y(d.relevance))
 			.attr("fill", d => color(d.outcome))
-			.attr("r", 10);
+			.attr("r", 10)
+			.append("svg:title")
+  				.text(d => d.name);
 
-	})
-}
-
-
-displayData();
+		}
+		
+	}
 
 var socket = io.connect('ws://localhost:9001');
 socket.emit('join', 'web');
@@ -107,12 +143,17 @@ socket.on('connect', () => {console.log("Connected");});
 socket.on('event', function(data){console.log(data);});
 socket.on('testreport', (data) => {
 	dataset.handleTestReport(data);
-	// TODO: Update the visualization here
+	displayData();
 });
 
 socket.on('predicted_failures', (data) => {
 	dataset.handlePredictedFailures(data);
 });
+
+socket.on('relevanceUpdate', data => {
+	dataset.handleRelevanceUpdate(data);
+	displayData(true);
+})
 
 socket.on('disconnect', function(){});
 
