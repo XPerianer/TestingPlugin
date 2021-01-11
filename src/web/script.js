@@ -1,6 +1,7 @@
 class VisualizationData {
 
 	defaultRelevance = 1;
+	data = [];
 
 	getObjectForTestName(name) {
 		return this.getData()[this.testNameToDataIndex.get(name)];
