@@ -2,10 +2,10 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
+let panel: vscode.WebviewPanel | undefined;
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	let panel: vscode.WebviewPanel | undefined;
 	context.subscriptions.push(
 		vscode.commands.registerCommand('testingPlugin.start', () => {
 			// Create and show a new webview
@@ -24,8 +24,13 @@ export function activate(context: vscode.ExtensionContext) {
 			// Make sure we register a serializer in activation event
 			vscode.window.registerWebviewPanelSerializer('testingPlugin', {
 				async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
-					webviewPanel.webview.html = getWebviewContext(webviewPanel.webview, context.extensionUri);
-					webviewPanel.webview.postMessage({ command: 'refresh' });
+					panel = webviewPanel;
+					panel.webview.html = getWebviewContext(webviewPanel.webview, context.extensionUri);
+					panel.webview.postMessage({ command: 'refresh' });
+					panel.webview.postMessage({ command: 'onDidChangeVisibleTextEditors',
+						textEditors: vscode.window.visibleTextEditors.map(
+						textEditor => ({filename: textEditor.document.fileName})
+					)});
 				}
 			});
 		}
@@ -41,7 +46,6 @@ export function activate(context: vscode.ExtensionContext) {
 
 	vscode.window.onDidChangeVisibleTextEditors(
 		textEditors => {
-			console.log(textEditors);
 			if (panel) {
 				panel.webview.postMessage({ command: 'onDidChangeVisibleTextEditors',
 				textEditors: textEditors.map(
@@ -50,6 +54,7 @@ export function activate(context: vscode.ExtensionContext) {
 			}
 		}
 	);
+
 };
 
 // this method is called when your extension is deactivated
@@ -70,6 +75,7 @@ return `
 <head>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
 	<script src="https://d3js.org/d3.v5.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.20/lodash.min.js"></script>
 </head>
 
 <body>
