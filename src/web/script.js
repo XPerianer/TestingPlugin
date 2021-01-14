@@ -97,21 +97,21 @@ d3.json("http://localhost:9001/data").then((data) => {
 var displayData = (transition=false) => {
 		// X axis
 		var x = d3.scaleLinear()
-			.range([0, width])
-			.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures));
-		visualization.xAxis
-			.attr("transform", "translate(0," + height + ")")
-			.call(d3.axisBottom(x))
-			.selectAll("text")
-			.attr("transform", "translate(-10,0)rotate(-45)")
-			.style("text-anchor", "end");
+		 	.range([0, width])
+		 	.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
+		// visualization.xAxis
+		// 	.attr("transform", "translate(0," + height + ")")
+		// 	.call(d3.axisBottom(x))
+		// 	.selectAll("text")
+		// 	.attr("transform", "translate(-10,0)rotate(-45)")
+		// 	.style("text-anchor", "end");
 
 		// Add Y axis
-		var y = d3.scaleLinear()
-			.domain([0, 100])
-			.range([height, 0]);
-		visualization.yAxis
-			.call(d3.axisLeft(y));
+		 var y = d3.scaleLinear()
+		 	.domain([0, 100])
+		 	.range([height, 0]);
+		// visualization.yAxis
+		// 	.call(d3.axisLeft(y));
 
 		if (transition) {
 			svg.selectAll("circle")
@@ -138,22 +138,25 @@ var displayData = (transition=false) => {
 		
 	}
 
+var throttledDisplayData = _.throttle(displayData, 100)
+
 var socket = io.connect('ws://localhost:9001');
 socket.emit('join', 'web');
 socket.on('connect', () => {console.log("Connected");});
 socket.on('event', function(data){console.log(data);});
 socket.on('testreport', (data) => {
 	dataset.handleTestReport(data);
-	displayData();
+	throttledDisplayData();
 });
 
 socket.on('predicted_failures', (data) => {
 	dataset.handlePredictedFailures(data);
+	throttledDisplayData();
 });
 
 socket.on('relevanceUpdate', data => {
 	dataset.handleRelevanceUpdate(data);
-	displayData(true);
+	throttledDisplayData(true);
 })
 
 socket.on('disconnect', function(){});
