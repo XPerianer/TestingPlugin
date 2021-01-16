@@ -177,5 +177,9 @@ window.addEventListener('message', event => {
 			break;
 		case 'onDidChangeVisibleTextEditors':
 			socket.emit('onDidChangeVisibleTextEditors', message.textEditors);
+			break;
+		case 'onDidChangeTextEditorVisibleRanges':
+			socket.emit('onDidChangeTextEditorVisibleRanges', message);
+			break;
 	}
 });

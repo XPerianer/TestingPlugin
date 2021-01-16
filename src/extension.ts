@@ -1,6 +1,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { pathToFileURL } from 'url';
 import * as vscode from 'vscode';
+import { relative } from 'path';
 
 let panel: vscode.WebviewPanel | undefined;
 // this method is called when your extension is activated
@@ -20,20 +22,22 @@ export function activate(context: vscode.ExtensionContext) {
 			);
 			panel.webview.html = getWebviewContext(panel.webview, context.extensionUri);
 		}))
-		if (vscode.window.registerWebviewPanelSerializer) {
-			// Make sure we register a serializer in activation event
-			vscode.window.registerWebviewPanelSerializer('testingPlugin', {
-				async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
-					panel = webviewPanel;
-					panel.webview.html = getWebviewContext(webviewPanel.webview, context.extensionUri);
-					panel.webview.postMessage({ command: 'refresh' });
-					panel.webview.postMessage({ command: 'onDidChangeVisibleTextEditors',
-						textEditors: vscode.window.visibleTextEditors.map(
-						textEditor => ({filename: textEditor.document.fileName})
-					)});
-				}
-			});
-		}
+	if (vscode.window.registerWebviewPanelSerializer) {
+		// Make sure we register a serializer in activation event
+		vscode.window.registerWebviewPanelSerializer('testingPlugin', {
+			async deserializeWebviewPanel(webviewPanel: vscode.WebviewPanel, state: any) {
+				panel = webviewPanel;
+				panel.webview.html = getWebviewContext(webviewPanel.webview, context.extensionUri);
+				panel.webview.postMessage({ command: 'refresh' });
+				panel.webview.postMessage({
+					command: 'onDidChangeVisibleTextEditors',
+					textEditors: vscode.window.visibleTextEditors.map(
+						textEditor => ({ filename: textEditor.document.fileName })
+					)
+				});
+			}
+		});
+	}
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('testingPlugin.save', () => {
@@ -47,13 +51,34 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.window.onDidChangeVisibleTextEditors(
 		textEditors => {
 			if (panel) {
-				panel.webview.postMessage({ command: 'onDidChangeVisibleTextEditors',
-				textEditors: textEditors.map(
-					textEditor => ({filename: textEditor.document.fileName})
-				)});
+				panel.webview.postMessage({
+					command: 'onDidChangeVisibleTextEditors',
+					textEditors: textEditors.map(
+						textEditor => ({ filename: textEditor.document.fileName })
+					)
+				});
 			}
 		}
 	);
+
+	let config = vscode.workspace.getConfiguration('testingPlugin');
+	if (config.get("relevancyGranularity") == 'lineBased') {
+		vscode.window.onDidChangeTextEditorVisibleRanges(
+			change => {
+				if (panel) {
+				let visibleStrings = change.visibleRanges.map(visibleRange => change.textEditor.document.getText(visibleRange));
+				// Using a Regex Heuristic to find names of methods in visible ranges fast
+				let visibleMethodNames = visibleStrings.map(s => s.match(/(?<=def ).*(?=\(.*\):)/g));
+				let data = {
+					command: 'onDidChangeTextEditorVisibleRanges',
+					filename: relative(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "", change.textEditor.document.fileName),
+					visibleMethodNames: (visibleMethodNames as any).flat() // Typescript Type system does not know the Array flat method
+				}
+				panel.webview.postMessage(data);
+				}
+			}
+		)
+	}
 
 };
 
@@ -68,7 +93,7 @@ function getWebviewContext(webview: vscode.Webview, extensionsUri: vscode.Uri) {
 	// And the uri we use to load this script in the webview
 	const scriptUri = webview.asWebviewUri(scriptPathOnDisk);
 
-return `
+	return `
 <!doctype html>
 
 <html>
@@ -84,4 +109,4 @@ return `
 </body>
 
 </html>`
-	}
+}
