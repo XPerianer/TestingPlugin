@@ -26,7 +26,18 @@
 				"command": "testingPlugin.save",
 				"title": "Testingplugin: save (used to detect that tests need to be run)"
 			}
-		]
+		],
+		"configuration": {
+			"title": "TestingPlugin",
+			"properties": {
+				"testingPlugin.relevancyGranularity": {
+					"type": "string",
+					"enum": ["fileBased", "lineBased"],
+					"default": "lineBased",
+					"description": "Which relevancy granto use"
+				}
+			}
+		}
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
