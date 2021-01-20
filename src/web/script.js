@@ -7,7 +7,7 @@ class VisualizationData {
 		return this.getData()[this.testNameToDataIndex.get(name)];
 	}
 
-	handlePredictedFailures(data){
+	handlePredictedFailures(data) {
 		for (let predictedFailure of data) {
 			this.getObjectForTestName(predictedFailure).outcome = "predicted_failure";
 		}
@@ -22,11 +22,11 @@ class VisualizationData {
 			if (test) {
 				test.relevance = relevance;
 			}
-		  }
+		}
 	}
 
 	handleTestReport(testreport) {
-		if(testreport.when == 'teardown') {
+		if (testreport.when == 'teardown') {
 			return;
 		}
 		let test = this.getObjectForTestName(testreport.id);
@@ -55,6 +55,7 @@ class VisualizationData {
 };
 
 
+const vscode = acquireVsCodeApi();
 
 // set the dimensions and margins of the graph
 var margin = { top: 30, right: 30, bottom: 70, left: 60 },
@@ -94,56 +95,55 @@ d3.json("http://localhost:9001/data").then((data) => {
 });
 
 // Parse the Data
-var displayData = (transition=false) => {
-		// X axis
-		var x = d3.scaleLinear()
-		 	.range([0, width])
-		 	.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
-		// visualization.xAxis
-		// 	.attr("transform", "translate(0," + height + ")")
-		// 	.call(d3.axisBottom(x))
-		// 	.selectAll("text")
-		// 	.attr("transform", "translate(-10,0)rotate(-45)")
-		// 	.style("text-anchor", "end");
+var displayData = (transition = false) => {
+	// X axis
+	var x = d3.scaleLinear()
+		.range([0, width])
+		.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
+	// visualization.xAxis
+	// 	.attr("transform", "translate(0," + height + ")")
+	// 	.call(d3.axisBottom(x))
+	// 	.selectAll("text")
+	// 	.attr("transform", "translate(-10,0)rotate(-45)")
+	// 	.style("text-anchor", "end");
 
-		// Add Y axis
-		 var y = d3.scaleLinear()
-		 	.domain([0, 100])
-		 	.range([height, 0]);
-		// visualization.yAxis
-		// 	.call(d3.axisLeft(y));
+	// Add Y axis
+	var y = d3.scaleLinear()
+		.domain([0, 100])
+		.range([height, 0]);
+	// visualization.yAxis
+	// 	.call(d3.axisLeft(y));
 
-		if (transition) {
-			svg.selectAll("circle")
-			.data(dataset.getData())
-			.join("circle")
-			.transition()
-			.duration(1000)
-			.attr("cx", d => x(d.mutant_failures))
-			.attr("cy", d => y(d.relevance))
-			.attr("fill", d => color(d.outcome))
-			.attr("r", 10);
-		} else {
-			svg.selectAll("circle")
-			.data(dataset.getData())
-			.join("circle")
-			.attr("cx", d => x(d.mutant_failures))
-			.attr("cy", d => y(d.relevance))
-			.attr("fill", d => color(d.outcome))
-			.attr("r", 10)
-			.append("svg:title")
-  				.text(d => d.name);
+	let circles = svg.selectAll("circle")
+		.data(dataset.getData())
+		.join("circle");
 
-		}
-		
+	if (transition) {
+		circles = circles.transition().duration(1000);
 	}
+
+	circles
+		.attr("cx", d => x(d.mutant_failures))
+		.attr("cy", d => y(d.relevance))
+		.attr("fill", d => color(d.outcome))
+		.attr("r", 10)
+		.on('click', (d) => {
+			vscode.postMessage({
+				command: 'onClick',
+				test: d.name,
+			});
+		})
+		.append("svg:title")
+		.text(d => d.name);
+
+}
 
 var throttledDisplayData = _.throttle(displayData, 100)
 
 var socket = io.connect('ws://localhost:9001');
 socket.emit('join', 'web');
-socket.on('connect', () => {console.log("Connected");});
-socket.on('event', function(data){console.log(data);});
+socket.on('connect', () => { console.log("Connected"); });
+socket.on('event', function (data) { console.log(data); });
 socket.on('testreport', (data) => {
 	dataset.handleTestReport(data);
 	throttledDisplayData();
@@ -159,7 +159,7 @@ socket.on('relevanceUpdate', data => {
 	throttledDisplayData(true);
 })
 
-socket.on('disconnect', function(){});
+socket.on('disconnect', function () { });
 
 
 window.addEventListener('message', event => {
@@ -173,7 +173,7 @@ window.addEventListener('message', event => {
 		case 'refresh':
 			console.log("Received refresh call");
 			socket.connect('wss://localhost:9001');
-			socket.emit('join','web');
+			socket.emit('join', 'web');
 			break;
 		case 'onDidChangeVisibleTextEditors':
 			socket.emit('onDidChangeVisibleTextEditors', message.textEditors);
