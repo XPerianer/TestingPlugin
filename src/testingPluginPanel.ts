@@ -1,6 +1,6 @@
 import { pathToFileURL } from 'url';
 import * as vscode from 'vscode';
-import { relative } from 'path';
+import { relative, join } from 'path';
 
 export default class TestingPluginPanel {
 	public static currentPanel: TestingPluginPanel | undefined;
@@ -42,7 +42,7 @@ export default class TestingPluginPanel {
 
 	public static save() {
 		if (this.currentPanel) {
-			this.save();
+			this.currentPanel.save();
 		}
 	}
 
@@ -69,13 +69,30 @@ export default class TestingPluginPanel {
 			message => {
 				switch (message.command) {
 					case 'onClick':
-						vscode.window.showErrorMessage(message.test);
+						this.onClick(message.test);
 						return;
 				}
 			},
 			null,
 			this.disposables
 		);
+	}
+
+	private onClick(testIdentifier: string) {
+		let [relativePath, testName] = testIdentifier.split('::');
+		let testPath = join(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "", relativePath);
+		vscode.workspace.openTextDocument(testPath).then(textDocument => {
+			vscode.window.showTextDocument(textDocument, vscode.ViewColumn.One, true).then(
+				textEditor => {
+					let content = textDocument.getText();
+					let lines = content.split('\n');
+					let lineIndex = lines.findIndex(line => line.includes(testName));
+					if (lineIndex) {
+						textEditor.revealRange(new vscode.Range(lineIndex, 0, lineIndex + 5, 0), vscode.TextEditorRevealType.AtTop)
+					}
+				}
+			);
+		});
 	}
 
 	private save() {
