@@ -97,7 +97,7 @@ d3.json("http://localhost:9001/data").then((data) => {
 // Parse the Data
 var displayData = (transition = false) => {
 	// X axis
-	var x = d3.scaleLinear()
+	var x = d3.scaleSqrt()
 		.range([0, width])
 		.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
 	// visualization.xAxis
@@ -109,7 +109,7 @@ var displayData = (transition = false) => {
 
 	// Add Y axis
 	var y = d3.scaleLinear()
-		.domain([0, 100])
+		.domain([1, 10])
 		.range([height, 0]);
 	// visualization.yAxis
 	// 	.call(d3.axisLeft(y));
@@ -117,6 +117,18 @@ var displayData = (transition = false) => {
 	let circles = svg.selectAll("circle")
 		.data(dataset.getData())
 		.join("circle");
+	
+	circles
+		.append("svg:title")
+		.text(d => d.name);
+
+	circles
+		.on('click', (d) => {
+			vscode.postMessage({
+				command: 'onClick',
+				test: d.name,
+			});
+		});
 
 	if (transition) {
 		circles = circles.transition().duration(1000);
@@ -126,15 +138,7 @@ var displayData = (transition = false) => {
 		.attr("cx", d => x(d.mutant_failures))
 		.attr("cy", d => y(d.relevance))
 		.attr("fill", d => color(d.outcome))
-		.attr("r", 10)
-		.on('click', (d) => {
-			vscode.postMessage({
-				command: 'onClick',
-				test: d.name,
-			});
-		})
-		.append("svg:title")
-		.text(d => d.name);
+		.attr("r", 10);
 
 }
 
