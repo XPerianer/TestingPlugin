@@ -118,7 +118,7 @@ export default class TestingPluginPanel {
 		this.panel.webview.postMessage({
 			command: 'onDidChangeVisibleTextEditors',
 			textEditors: textEditors.map(
-				textEditor => ({ filename: textEditor.document.fileName })
+				textEditor => ({ filename: relative(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "", textEditor.document.fileName) })
 			)
 		});
 	}
