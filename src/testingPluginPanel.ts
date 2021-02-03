@@ -62,6 +62,9 @@ export default class TestingPluginPanel {
 		this.panel = panel;
 		panel.webview.html = this.getWebviewContext(panel.webview, extensionUri);
 
+		// Set correct visualization function:
+		panel.webview.postMessage({ command: 'onSwitchVisualizationFunction', visualization: TestingPluginPanel.config.get("visualizationFunction") });
+
 		this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
 		// Handle messages from the webview

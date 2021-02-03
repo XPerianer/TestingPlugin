@@ -54,6 +54,104 @@ class VisualizationData {
 	}
 };
 
+class VisualizationFunctions {
+	static scatter(transition = false) {
+		// X axis
+		var x = d3.scaleSqrt()
+			.range([0, width])
+			.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
+		// visualization.xAxis
+		// 	.attr("transform", "translate(0," + height + ")")
+		// 	.call(d3.axisBottom(x))
+		// 	.selectAll("text")
+		// 	.attr("transform", "translate(-10,0)rotate(-45)")
+		// 	.style("text-anchor", "end");
+	
+		// Add Y axis
+		var y = d3.scaleLinear()
+			.domain([1, 10])
+			.range([height, 0]);
+		// visualization.yAxis
+		// 	.call(d3.axisLeft(y));
+	
+		let circles = svg.selectAll("circle")
+			.data(dataset.getData())
+			.join("circle");
+		
+		circles
+			.append("svg:title")
+			.text(d => d.name);
+	
+		circles
+			.on('click', (d) => {
+				vscode.postMessage({
+					command: 'onClick',
+					test: d.name,
+				});
+			});
+	
+		if (transition) {
+			circles = circles.transition().duration(1000);
+		}
+	
+		circles
+			.attr("cx", d => x(d.mutant_failures))
+			.attr("cy", d => y(d.relevance))
+			.attr("fill", d => color(d.outcome))
+			.attr("r", 10);
+	
+	};
+
+	static embedding(transition = false) {
+		// X axis
+		var x = d3.scaleLinear()
+			.domain(d3.extent(dataset.getData(), d => d.x))
+			.range([0, width]);
+		// visualization.xAxis
+		// 	.attr("transform", "translate(0," + height + ")")
+		// 	.call(d3.axisBottom(x))
+		// 	.selectAll("text")
+		// 	.attr("transform", "translate(-10,0)rotate(-45)")
+		// 	.style("text-anchor", "end");
+	
+		// Add Y axis
+		var y = d3.scaleLinear()
+			.domain(d3.extent(dataset.getData(), d => d.y))
+			.range([height, 0]);
+		
+		var r = d3.scaleSqrt()
+			.domain([1, 10])
+			.range([3, 30]);
+	
+		let circles = svg.selectAll("circle")
+			.data(dataset.getData())
+			.join("circle");
+		
+		circles
+			.append("svg:title")
+			.text(d => d.name);
+	
+		circles
+			.on('click', (d) => {
+				vscode.postMessage({
+					command: 'onClick',
+					test: d.name,
+				});
+			});
+	
+		if (transition) {
+			circles = circles.transition().duration(1000);
+		}
+	
+		circles
+			.attr("cx", d => x(d.x))
+			.attr("cy", d => y(d.y))
+			.attr("fill", d => color(d.outcome))
+			.attr("r", d => r(d.relevance));
+	
+	}
+}
+
 
 const vscode = acquireVsCodeApi();
 
@@ -87,81 +185,35 @@ var color = (outcome) => {
 	} else {
 		return "red";
 	}
-}
+};
 
 d3.json("http://localhost:9001/data").then((data) => {
 	dataset.setData(data);
 	displayData();
 });
 
-// Parse the Data
-var displayData = (transition = false) => {
-	// X axis
-	var x = d3.scaleSqrt()
-		.range([0, width])
-		.domain(d3.extent(dataset.getData(), (d) => d.mutant_failures)); // TODO: This extent is probably slow
-	// visualization.xAxis
-	// 	.attr("transform", "translate(0," + height + ")")
-	// 	.call(d3.axisBottom(x))
-	// 	.selectAll("text")
-	// 	.attr("transform", "translate(-10,0)rotate(-45)")
-	// 	.style("text-anchor", "end");
-
-	// Add Y axis
-	var y = d3.scaleLinear()
-		.domain([1, 10])
-		.range([height, 0]);
-	// visualization.yAxis
-	// 	.call(d3.axisLeft(y));
-
-	let circles = svg.selectAll("circle")
-		.data(dataset.getData())
-		.join("circle");
-	
-	circles
-		.append("svg:title")
-		.text(d => d.name);
-
-	circles
-		.on('click', (d) => {
-			vscode.postMessage({
-				command: 'onClick',
-				test: d.name,
-			});
-		});
-
-	if (transition) {
-		circles = circles.transition().duration(1000);
-	}
-
-	circles
-		.attr("cx", d => x(d.mutant_failures))
-		.attr("cy", d => y(d.relevance))
-		.attr("fill", d => color(d.outcome))
-		.attr("r", 10);
-
-}
-
-var throttledDisplayData = _.throttle(displayData, 100)
+var displayData = VisualizationFunctions.embedding;
+var throttledDisplayData = _.throttle(displayData, 100);
 
 var socket = io.connect('ws://localhost:9001');
 socket.emit('join', 'web');
 socket.on('connect', () => { console.log("Connected"); });
 socket.on('event', function (data) { console.log(data); });
 socket.on('testreport', (data) => {
-	dataset.handleTestReport(data);
-	throttledDisplayData();
+       dataset.handleTestReport(data);
+       throttledDisplayData();
 });
 
 socket.on('predicted_failures', (data) => {
-	dataset.handlePredictedFailures(data);
-	throttledDisplayData();
+       dataset.handlePredictedFailures(data);
+       throttledDisplayData();
 });
 
 socket.on('relevanceUpdate', data => {
-	dataset.handleRelevanceUpdate(data);
-	throttledDisplayData(true);
-})
+       dataset.handleRelevanceUpdate(data);
+       throttledDisplayData(true);
+});
+
 
 socket.on('disconnect', function () { });
 
@@ -185,5 +237,16 @@ window.addEventListener('message', event => {
 		case 'onDidChangeTextEditorVisibleRanges':
 			socket.emit('onDidChangeTextEditorVisibleRanges', message);
 			break;
+		case 'onSwitchVisualizationFunction':
+			console.log(message.visualization);
+			switch(message.visualization) {
+				case 'scatter':
+					displayData = VisualizationFunctions.scatter;
+					break;
+				case 'embedding':
+					displayData = VisualizationFunctions.embedding;
+					break;
+			}
+			throttledDisplayData = _.throttle(displayData, 100);
 	}
 });

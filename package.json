@@ -35,6 +35,12 @@
 					"enum": ["fileBased", "lineBased"],
 					"default": "lineBased",
 					"description": "Which relevancy granto use"
+				},
+				"testingPlugin.visualizationFunction": {
+					"type": "string",
+					"enum": ["scatter", "embedding", "table"],
+					"default": "embedding",
+					"description": "Which visualization function to use. Needs restart."
 				}
 			}
 		}
