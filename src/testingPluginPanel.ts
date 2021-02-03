@@ -33,6 +33,7 @@ export default class TestingPluginPanel {
 			}
 		);
 
+
 		TestingPluginPanel.currentPanel = new TestingPluginPanel(panel, extensionUri);
 	}
 
@@ -134,7 +135,7 @@ export default class TestingPluginPanel {
 			command: 'onDidChangeTextEditorVisibleRanges',
 			filename: relative(vscode.workspace.workspaceFolders ? vscode.workspace.workspaceFolders[0].uri.path : "", change.textEditor.document.fileName),
 			visibleMethodNames: (visibleMethodNames as any).flat() // Typescript Type system does not know the Array flat method
-		}
+		};
 		this.panel.webview.postMessage(data);
 	}
 
@@ -160,7 +161,7 @@ export default class TestingPluginPanel {
 		<script src="${scriptUri}"></script>
 	</body>
 	
-	</html>`
+	</html>`;
 	}
 }
 

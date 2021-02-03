@@ -1,3 +1,6 @@
+// Helper function to write shorter accessors
+var ƒ = ((c) => ((d) => d[c]));
+
 class VisualizationData {
 
 	defaultRelevance = 1;
@@ -150,6 +153,47 @@ class VisualizationFunctions {
 			.attr("r", d => r(d.relevance));
 	
 	}
+
+	static table() {
+		// column definitions
+		var columns = [
+			{ head: 'Name', cl: 'title', html: (d) => d.name.slice(0,40) },
+			{ head: 'Relevance', cl: 'center', html: ƒ('relevance') },
+			{ head: 'Outcome', cl: 'center', html: ƒ('outcome') },
+		];
+		d3.select('body').selectAll('table').remove();
+		 // create table
+		 var table = d3.select('body')
+		 	.append('table');
+ 
+		// create table header
+		table.append('thead').append('tr')
+			.selectAll('th')
+			.data(columns).enter()
+			.append('th')
+			.attr('class', ƒ('cl'))
+			.text(ƒ('head'));
+	
+		// create table body
+		table.append('tbody')
+			.selectAll('tr')
+			.data(dataset.getData().sort((a, b) => b.relevance - a.relevance))
+			.join('tr')
+			.selectAll('td')
+			.data(function(row, i) {
+				return columns.map(function(c) {
+					// compute cell values for this specific row
+					var cell = {};
+					d3.keys(c).forEach(function(k) {
+						cell[k] = typeof c[k] == 'function' ? c[k](row,i) : c[k];
+					});
+					return cell;
+				});
+			})
+			.join('td')
+			.html(ƒ('html'))
+			.attr('class', ƒ('cl'));
+	}
 }
 
 
@@ -245,6 +289,9 @@ window.addEventListener('message', event => {
 					break;
 				case 'embedding':
 					displayData = VisualizationFunctions.embedding;
+					break;
+				case 'table':
+					displayData = VisualizationFunctions.table;
 					break;
 			}
 			throttledDisplayData = _.throttle(displayData, 100);
