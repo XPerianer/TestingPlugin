@@ -220,14 +220,17 @@ visualization.xAxis = svg.append("g");
 visualization.circles = svg.selectAll("circles");
 
 var dataset = new VisualizationData();
-// Add fill color
+
+var passingTestColor = '#2ca02c';
+var failingTestColor = '#d62728';
+var pendingTestColor = '#ff7f0e';
 var color = (outcome) => {
 	if (outcome == "passed") {
-		return "green";
+		return passingTestColor;
 	} else if (outcome == "predicted_failure") {
-		return "blue";
+		return pendingTestColor;
 	} else {
-		return "red";
+		return failingTestColor;
 	}
 };
 
