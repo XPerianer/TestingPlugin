@@ -1,6 +1,7 @@
 // Helper function to write shorter accessors
 var ƒ = ((c) => ((d) => d[c]));
 
+
 class VisualizationData {
 
 	defaultRelevance = 1;
@@ -122,9 +123,9 @@ class VisualizationFunctions {
 			.domain(d3.extent(dataset.getData(), d => d.y))
 			.range([height, 0]);
 		
-		var r = d3.scaleSqrt()
+		var r = d3.scaleLinear()
 			.domain([1, 10])
-			.range([3, 30]);
+			.range([1, 10]);
 	
 		let circles = svg.selectAll("circle")
 			.data(dataset.getData())
@@ -145,7 +146,7 @@ class VisualizationFunctions {
 		if (transition) {
 			circles = circles.transition().duration(1000);
 		}
-	
+
 		circles
 			.attr("cx", d => x(d.x))
 			.attr("cy", d => y(d.y))
@@ -157,9 +158,9 @@ class VisualizationFunctions {
 	static table() {
 		// column definitions
 		var columns = [
-			{ head: 'Name', cl: 'title', html: (d) => d.name.slice(0,40) },
-			{ head: 'Relevance', cl: 'center', html: ƒ('relevance') },
-			{ head: 'Outcome', cl: 'center', html: ƒ('outcome') },
+			{ head: 'Name', cl: 'title', html: (d) => d.name.slice(6,40) },
+			{ head: 'Relevance', cl: 'center', html: d => `<div style="background: steelblue; padding: 10px; margin: 1px; width: ${(d.relevance - 1) * 30}px;"></div>`},
+			{ head: 'Outcome', cl: 'center', html: d => `<div style="background: ${color(d.outcome)}; padding: 10px; margin: 1px; width: 10px;"></div>`},
 		];
 		d3.select('body').selectAll('table').remove();
 		 // create table

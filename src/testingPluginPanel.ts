@@ -157,7 +157,7 @@ export default class TestingPluginPanel {
 	</head>
 	
 	<body>
-		<svg id="chart" width="300" height="800"></svg>
+		<svg id="chart" width="300" height="900"></svg>
 		<script src="${scriptUri}"></script>
 	</body>
 	
