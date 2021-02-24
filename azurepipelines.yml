@@ -28,8 +28,7 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
-    npm install
-    npm install --only-dev
+    npm install --production=false
     echo ">>> Run testingPlugin integration tests"
     npm test
   displayName: Run Tests
