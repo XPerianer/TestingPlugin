@@ -29,11 +29,7 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
-    echo ">>> Compile testingPlugin"
-    npm install && npm run compile
-    echo ">>> Compiled testingPlugin"
-    echo ">>> Run sample integration test"
-    cd testingPlugin
+    echo ">>> Run testingPlugin integration tests"
     npm test
   displayName: Run Tests
   env:
