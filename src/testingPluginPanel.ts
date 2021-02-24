@@ -35,6 +35,7 @@ export default class TestingPluginPanel {
 	public static readonly viewType = 'testingPlugin';
 
 	public static createOrShow(extensionUri: vscode.Uri) {
+
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
@@ -108,6 +109,10 @@ export default class TestingPluginPanel {
 			null,
 			this.disposables
 		);
+	}
+
+	public getPanel() {
+		return this.panel;
 	}
 
 	private onClick(testIdentifier: string) {
