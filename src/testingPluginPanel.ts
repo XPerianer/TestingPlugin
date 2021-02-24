@@ -86,8 +86,13 @@ export default class TestingPluginPanel {
 		this.panel = panel;
 		panel.webview.html = this.getWebviewContext(panel.webview, extensionUri);
 
+		// Update to current config
+		TestingPluginPanel.config = vscode.workspace.getConfiguration('testingPlugin');
 		// Set correct visualization function:
 		panel.webview.postMessage({ command: 'onSwitchVisualizationFunction', visualization: TestingPluginPanel.config.get("visualizationFunction") });
+		
+		// And set some other options
+		panel.webview.postMessage({ command: 'onSetOption', 'key': 'desaturate', value: TestingPluginPanel.config.get("desaturateAccordingToTimestamp")});
 
 		this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 

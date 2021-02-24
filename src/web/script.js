@@ -226,6 +226,8 @@ class VisualizationFunctions {
 
 const vscode = acquireVsCodeApi();
 
+const config = {};
+
 // set the dimensions and margins of the graph
 var margin = { top: 30, right: 30, bottom: 70, left: 60 },
 	width = 300 - margin.left - margin.right,
@@ -260,7 +262,11 @@ var color = (outcome, timestamp=Date.now()) => {
 	} else {
 		baseColor = failingTestColor;
 	}
-	let color = tinycolor(baseColor).desaturate((Date.now() - timestamp) / 1000);
+	let color = tinycolor(baseColor);
+
+	if(config["desaturate"]){
+		color.desaturate((Date.now() - timestamp) / 1000);
+	}
 
 	return color.toString();
 };
@@ -330,5 +336,10 @@ window.addEventListener('message', event => {
 					break;
 			}
 			throttledDisplayData = _.throttle(displayData, 100);
+			break;
+		case 'onSetOption':
+			config[message.key] = message.value;
+			console.log(`Set option: ${message.key} to ${message.value}`)
+			break;
 	}
 });

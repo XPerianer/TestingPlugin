@@ -41,6 +41,11 @@
 					"enum": ["scatter", "embedding", "table"],
 					"default": "embedding",
 					"description": "Which visualization function to use. Needs restart."
+				},
+				"testingPlugin.desaturateAccordingToTimestamp": {
+					"type": "boolean",
+					"default": true,
+					"description": "After some time, tests that have not been executed will get desaturated."
 				}
 			}
 		}
