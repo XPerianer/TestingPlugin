@@ -104,7 +104,7 @@ class VisualizationFunctions {
 		// visualization.yAxis
 		// 	.call(d3.axisLeft(y));
 	
-		let circles = svg.selectAll("circle")
+		let circles = contentGroup.selectAll("circle")
 			.data(dataset.getData())
 			.join("circle");
 		
@@ -153,7 +153,7 @@ class VisualizationFunctions {
 			.domain([1, 10])
 			.range([1, 10]);
 	
-		let circles = svg.selectAll("circle")
+		let circles = contentGroup.selectAll("circle")
 			.data(dataset.getData())
 			.join("circle");
 		
@@ -234,19 +234,23 @@ var margin = { top: 30, right: 30, bottom: 70, left: 60 },
 	height = 800 - margin.top - margin.bottom;
 
 // append the svg object to the body of the page
-var svg = d3.select("#chart")
+var svg = d3.select("body")
 	.append("svg")
 	.attr("width", width + margin.left + margin.right)
 	.attr("height", height + margin.top + margin.bottom)
-	.append("g")
-	.attr("transform",
-		"translate(" + margin.left + "," + margin.top + ")");
+	.call(d3.zoom().on("zoom", e => {
+		contentGroup.attr("transform", e.transform)
+	 }));
+
+var contentGroup = svg
+	.append("g");
+
 
 var visualization = {};
 
-visualization.yAxis = svg.append("g");
-visualization.xAxis = svg.append("g");
-visualization.circles = svg.selectAll("circles");
+visualization.yAxis = contentGroup.append("g");
+visualization.xAxis = contentGroup.append("g");
+visualization.circles = contentGroup.selectAll("circles");
 
 var dataset = new VisualizationData();
 

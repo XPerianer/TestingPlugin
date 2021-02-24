@@ -28,7 +28,7 @@
 			}
 		],
 		"configuration": {
-			"title": "TestingPlugin",
+			"title": "TestingPlugin - be aware that most options need a restart of the testingPluginPanel to take effect",
 			"properties": {
 				"testingPlugin.relevancyGranularity": {
 					"type": "string",
