@@ -62,6 +62,7 @@ class VisualizationData {
 			console.log(`Test: ${testreport.id} could not be found`);
 			return;
 		}
+		test.timestamp = testreport.timestamp;
 		if (testreport.outcome) {
 			test.outcome = "passed";
 		} else {
@@ -75,6 +76,7 @@ class VisualizationData {
 		this.data.forEach((test, index) => {
 			this.testNameToDataIndex.set(test.name, index);
 			test.relevance = 1;
+			test.timestamp = Date.now(); // Generate ms timestamp
 		});
 	}
 	getData() {
@@ -174,7 +176,7 @@ class VisualizationFunctions {
 		circles
 			.attr("cx", d => x(d.x))
 			.attr("cy", d => y(d.y))
-			.attr("fill", d => color(d.outcome))
+			.attr("fill", d => color(d.outcome, d.timestamp))
 			.attr("r", d => r(d.relevance));
 	
 	}
@@ -249,14 +251,18 @@ var dataset = new VisualizationData();
 var passingTestColor = '#2ca02c';
 var failingTestColor = '#d62728';
 var pendingTestColor = '#ff7f0e';
-var color = (outcome) => {
+var color = (outcome, timestamp=Date.now()) => {
+	let baseColor = '#000000';
 	if (outcome == "passed") {
-		return passingTestColor;
+		baseColor = passingTestColor;
 	} else if (outcome == "predicted_failure") {
-		return pendingTestColor;
+		baseColor = pendingTestColor;
 	} else {
-		return failingTestColor;
+		baseColor = failingTestColor;
 	}
+	let color = tinycolor(baseColor).desaturate((Date.now() - timestamp) / 1000);
+
+	return color.toString();
 };
 
 d3.json("http://localhost:9001/data").then((data) => {
@@ -266,6 +272,7 @@ d3.json("http://localhost:9001/data").then((data) => {
 
 var displayData = VisualizationFunctions.embedding;
 var throttledDisplayData = _.throttle(displayData, 100);
+window.setInterval(throttledDisplayData, 1000);
 
 var socket = io.connect('ws://localhost:9001');
 socket.emit('join', 'web');
