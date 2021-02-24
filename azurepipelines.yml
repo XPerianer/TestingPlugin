@@ -33,7 +33,7 @@ steps:
     npm install && npm run compile
     echo ">>> Compiled testingPlugin"
     echo ">>> Run sample integration test"
-    npm run test
+    npm test
   displayName: Run Tests
   env:
     DISPLAY: ':99.0'
