@@ -18,7 +18,7 @@ steps:
 
 - task: NodeTool@0
   inputs:
-    versionSpec: '8.x'
+    versionSpec: '15.x'
   displayName: 'Install Node.js'
 
 - bash: |
@@ -28,7 +28,7 @@ steps:
   condition: and(succeeded(), eq(variables['Agent.OS'], 'Linux'))
 
 - bash: |
-    npm install --production=false
+    npm install
     echo ">>> Run testingPlugin integration tests"
     npm test
   displayName: Run Tests
