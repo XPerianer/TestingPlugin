@@ -78,7 +78,7 @@ export default class TestingPluginPanel {
 	}
 
 	public static onDidChangeTextEditorVisibleRanges(change: vscode.TextEditorVisibleRangesChangeEvent) {
-		if (this.currentPanel && this.config.get("relevancyGranularity") == 'lineBased') {
+		if (this.currentPanel && this.config.get("relevancyGranularity") === 'lineBased') {
 			this.currentPanel.onDidChangeTextEditorVisibleRanges(change);
 		}
 	}
@@ -125,7 +125,7 @@ export default class TestingPluginPanel {
 					let lines = content.split('\n');
 					let lineIndex = lines.findIndex(line => line.includes(testName));
 					if (lineIndex) {
-						textEditor.revealRange(new vscode.Range(lineIndex, 0, lineIndex + 5, 0), vscode.TextEditorRevealType.AtTop)
+						textEditor.revealRange(new vscode.Range(lineIndex, 0, lineIndex + 5, 0), vscode.TextEditorRevealType.AtTop);
 					}
 				}
 			);
@@ -133,7 +133,7 @@ export default class TestingPluginPanel {
 	}
 
 	private save() {
-		vscode.commands.executeCommand('workbench.action.files.save')
+		vscode.commands.executeCommand('workbench.action.files.save');
 		this.panel.webview.postMessage({ command: 'save' });
 	}
 
