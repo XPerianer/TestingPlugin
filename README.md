@@ -1,7 +1,8 @@
 # testingplugin README
 [![Build Status](https://dev.azure.com/domeier/TestingPlugin/_apis/build/status/XPerianer.TestingPlugin?branchName=main)](https://dev.azure.com/domeier/TestingPlugin/_build/latest?definitionId=1&branchName=main)
 
-Immidate Test Feedback with nice visualizitons and interactions.
+This plugin enables the visualization of relevance and immediate feedback information in the visual studio code source code editor.
+It is part of the [ImmediateTestFeedback](https://github.com/XPerianer/ImmediateTestFeedback) ecosystem.
 
 ## Features
 
@@ -17,50 +18,30 @@ For example if there is an image subfolder under your extension project workspac
 
 If you have any requirements or dependencies, add a section describing those and how to install and configure them.
 
-## Extension Settings
+## Running the Extension
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+TestingPlugin provides the editor action `testingplugin.start` to open a panel with the additional visualization.
+The easiest way to call it is by typing in 'Activate Testingplugin' after the `CTRL-SHIF-P` visual studio code action window open.
+In case of flask, it should look somehow similar to this:
+# TODO add picture
 
-For example:
+The action `testingplugin.save` is meant to be used for saving the current status of the source code and receiving immediate feedback. For testing purposes, it can also be activated by typing in the command after hitting `CTRL-SHIFT-P`.
+To really use the plugin, this command should better be rebinded to, e.g. `CTRL-S`.
+Rebinding this inside the editor is easy.
+Run `Preferences: Open Keyboard Shortcuts(JSON)` via `CTRL-SHIFT-P`, and insert the following entry inside the JSON:
+```
+    {
+        "key": "ctrl+alt+s",
+        "command": "testingPlugin.save"
+    },
+```
+Now, test should turn red if executed, like this
+# TODO add picture
 
-This extension contributes the following settings:
+## Settings
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+Different visualization options are possible:
 
-## Known Issues
+* `testingPlugin.enable`: enable/disable this extension
+* `testingPlugin.thing`: set to `blah` to do something
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
-
-## Release Notes
-
-Users appreciate release notes as you update your extension.
-
-### 1.0.0
-
-Initial release of ...
-
-### 1.0.1
-
-Fixed issue #.
-
-### 1.1.0
-
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
