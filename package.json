@@ -36,7 +36,7 @@
 						"fileBased",
 						"lineBased"
 					],
-					"default": "lineBased",
+					"default": "fileBased",
 					"description": "Which relevancy granto use"
 				},
 				"testingPlugin.visualizationFunction": {
