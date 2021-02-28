@@ -20,7 +20,15 @@ It is part of the [ImmediateTestFeedback](https://github.com/XPerianer/Immediate
 
 ## Loading the extension into the editor
 
-The easiest way to load the extension is by opening up this repository folder inside Visual Studio Code. It contains the subfolder `.vscode` which already holds the information on how to start the plugin. Pressing `F5` triggers the editor to open a Visual Studio `Extension Development Host` window. This looks like another Visual Studio Code editor window, but has `TestingPlugin` loaded.
+The easiest way to load the extension is by opening up this repository folder inside Visual Studio Code.
+Now, the dependencies can be installed in the console integration of Visual Studio Code by executing
+```
+npm install --production=false
+```
+(The `--production=false` option might be necessary, if the nodeenv variables are configured to only install production dependencies)
+The repository contains the subfolder `.vscode` which already holds the information on how to start the plugin.
+Pressing `F5` triggers the editor to open a Visual Studio `Extension Development Host` window.
+This looks like another Visual Studio Code editor window, but has `TestingPlugin` loaded.
 
 ## Starting the extension in the editor
 
@@ -46,9 +54,16 @@ Run `Preferences: Open Keyboard Shortcuts(JSON)` via `CTRL-SHIFT-P`, and insert 
 If the source code is modified and tests fail, they should turn red quickly after hitting `CTRL-S`:
 ![ctrls_red](https://user-images.githubusercontent.com/5360508/109419674-e361e680-79ce-11eb-8500-c593ee2c454d.png)
 
+## Debug Information
+Errors inside the plugin code are printed in the Debug Console of the main Visual Studio Code window that was used to start the plugin.
+Errors inside the webview can be debugged using the `CTRL-SHIFT-P` dialog and opening the "Webview Developer Tools".
+
 ## Settings
 
 ###### Be aware that most settings require a restart of the plugin. This can be done by closing the TestingPlugin Panel and then reopening it.`
+
+Settings can be found in the settings ui with `CTRL-SHIFT-P`:Settings.
+They are under Extensions -> TestingPlugin.
 
 Different visualization options are possible:
 * `Scatter` uses an xy-Scatter plot to display on the y-Axis the relevance of the test for the context, and on the x-Axis the overall failure rate.
