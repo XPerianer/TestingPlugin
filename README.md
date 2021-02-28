@@ -25,15 +25,17 @@ The easiest way to load the extension is by opening up this repository folder in
 ## Starting the extension in the editor
 
 Before starting the extension, open the repository folder that you want to use the plugin for with the plugin. (That can be configured in the configuration of [TestingBackend](https://github.com/XPerianer/TestingBackend))
+
 TestingPlugin provides the editor action `testingplugin.start` to open a panel with the additional visualization.
-The easiest way to call it is by typing in 'Activate Testingplugin' after the `CTRL-SHIF-P` visual studio code action window open.
-The panel should then be rearranged to the right side.
+Call it by typing in 'Activate Testingplugin' after the `CTRL-SHIFT-P` visual studio code action window opens.
+Rearrange the panel to the side by dragging it to the right side of the editor.
 In case of flask, it should look somehow similar to this:
 ![Screenshot of loaded tests](https://user-images.githubusercontent.com/5360508/109419414-a1847080-79cd-11eb-8160-c3a9dc72c8d6.png)
 
-The action `testingplugin.save` is meant to be used for saving the current status of the source code and receiving immediate feedback. For testing purposes, it can also be activated by typing in the command after hitting `CTRL-SHIFT-P`.
+The action `testingplugin.save` is meant to be used for saving the current status of the source code and receiving immediate feedback.
+For testing purposes, it can be activated by typing in the command after hitting `CTRL-SHIFT-P`.
 To really use the plugin, this command should better be rebinded to, e.g. `CTRL-S`.
-Rebinding this inside the editor is easy.
+Rebinding this inside the editor can be done via the Keyboard Shortcut Settings.
 Run `Preferences: Open Keyboard Shortcuts(JSON)` via `CTRL-SHIFT-P`, and insert the following entry inside the JSON:
 ```
     {
@@ -46,7 +48,7 @@ If the source code is modified and tests fail, they should turn red quickly afte
 
 ## Settings
 
-`Be aware that most settings require a restart of the plugin. This can be done by closing the TestingPlugin Panel and then reopening it.`
+###### Be aware that most settings require a restart of the plugin. This can be done by closing the TestingPlugin Panel and then reopening it.`
 
 Different visualization options are possible:
 * `Scatter` uses an xy-Scatter plot to display on the y-Axis the relevance of the test for the context, and on the x-Axis the overall failure rate.
